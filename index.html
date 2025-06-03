@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testar API Derm AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        input[type="file"] {
+            display: block;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        #response-area {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+            white-space: pre-wrap; /* Para preservar quebras de linha e espaços */
+            word-wrap: break-word; /* Para quebrar palavras longas */
+        }
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #6b7280;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .success {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        p strong {
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Testador de API de Diagnóstico de Pele</h1>
+        <form id="uploadForm">
+            <input type="file" id="imageInput" accept="image/*">
+            <button type="submit">Analisar Imagem</button>
+        </form>
+        <div id="response-area">
+            <p class="loading">Aguardando envio de imagem...</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const imageInput = document.getElementById('imageInput');
+        const responseArea = document.getElementById('response-area');
+
+        // IMPORTANTE: Use o IP da sua máquina onde o servidor Flask está rodando.
+        // Se você está testando localmente na mesma máquina, 127.0.0.1 é geralmente o correto.
+        // Se você está acessando de outro dispositivo na sua rede, substitua por exemplo: 'http://192.168.1.100:5000/predict'
+        const API_URL = 'http://127.0.0.1:5000/predict'; 
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            const file = imageInput.files[0];
+            if (!file) {
+                responseArea.innerHTML = '<p class="error">Por favor, selecione uma imagem.</p>';
+                return;
+            }
+
+            responseArea.innerHTML = '<p class="loading">Enviando e analisando imagem...</p>';
+
+            const formData = new FormData();
+            formData.append('image', file);
+            console.log('FormData preparado.');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData,
+                    // O 'Content-Type' é automaticamente definido pelo navegador
+                    // quando você usa FormData, não precisa defini-lo manualmente.
+                });
+
+                console.log('Resposta da API recebida:', response.status, response.statusText);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Erro de resposta da API:', errorData); 
+                    throw new Error(errorData.error || `Erro HTTP: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('Dados da API parseados:', result);
+                
+                // Exibir os resultados na área de resposta
+                responseArea.innerHTML = `
+                    <p class="success">Análise concluída com sucesso!</p>
+                    <p><strong>${result.diagnostico_text}</strong></p>
+                    <p>${result.descricao_text}</p>
+                    <p>${result.laudo_text}</p>
+                `;
+
+            } catch (error) {
+                console.error('Erro ao chamar a API:', error);
+                responseArea.innerHTML = `<p class="error">Erro na análise: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
