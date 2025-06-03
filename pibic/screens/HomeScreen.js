@@ -12,21 +12,22 @@ const HomeScreen = () => {
   const { isDark } = useTheme();
 
   const requestPermissions = async () => {
-    const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
-    const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+  const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (
-      cameraPermission.status !== 'granted' ||
-      mediaPermission.status !== 'granted'
-    ) {
-      Alert.alert(
-        'Permissões negadas',
-        'Você precisa permitir o uso da câmera e da galeria.'
-      );
-      return false;
-    }
-    return true;
-  };
+  if (
+    cameraPermission.status !== "granted" ||
+    mediaPermission.status !== "granted"
+  ) {
+    Alert.alert(
+      "Permissões negadas",
+      "Você precisa permitir o uso da câmera e da galeria."
+    );
+    return false;
+  }
+  return true;
+};
+
 
   const handleCaptureImage = async () => {
     const granted = await requestPermissions();
@@ -65,13 +66,7 @@ const HomeScreen = () => {
     });
 
     try {
-      const response = await fetch('http://172.25.153.3:5000/predict', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await fetch("http://192.168.4.2:5000/predict", { method: "POST", body: formData });
       const result = await response.json();
       console.log(result);
     } catch (error) {

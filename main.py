@@ -135,6 +135,7 @@ def classificar_lesao(image_path: Path) -> tuple[str, float]:
 if __name__ == "__main__":
     # Exemplo de execução
     img_path = Path(r"C:\Users\mathe\Downloads\pibic\ISIC_2019\training\AK\ISIC_0024468.jpg") 
+    
     # 1. Classificação
     code, conf = classificar_lesao(img_path)
     desc = gerar_descricao_imagem(img_path)
