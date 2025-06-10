@@ -97,8 +97,8 @@
         const API_URL = 'http://127.0.0.1:5000/predict'; 
 
         uploadForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Impede o envio padrão do formulário
-
+            event.preventDefault(); 
+            
             const file = imageInput.files[0];
             if (!file) {
                 responseArea.innerHTML = '<p class="error">Por favor, selecione uma imagem.</p>';
@@ -115,8 +115,6 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     body: formData,
-                    // O 'Content-Type' é automaticamente definido pelo navegador
-                    // quando você usa FormData, não precisa defini-lo manualmente.
                 });
 
                 console.log('Resposta da API recebida:', response.status, response.statusText);
